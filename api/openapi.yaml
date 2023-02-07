@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  description: "Amoeba API description"
+  version: 1.0.0
+  title: Amoeba * OpenLab
+  contact:
+    email: openlabuk@proton.me
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+  - name: record
+    description: an object containing a key and value
+  - name: healthcheck
+    description: service healthcheck
+  - name: flush
+    description: flush all keys
+paths:
+  /create:
+    post:
+      tags:
+        - record
+      summary: add a new record to the cache
+      description: Add a new record to the cache
+      operationId: createRecord
+      requestBody:
+        $ref: "#/components/requestBodies/Record"
+      responses:
+        "200":
+          description: record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateRecordResponse"
+        "400":
+          description: invalid input
+  /healthcheck:
+    get:
+      tags:
+        - healthcheck
+      summary: Healthcheck endpoint 
+      description: an endpoint to return the health of the service
+      operationId: healthCheck
+      responses:
+        "200":
+          description: service is running
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /get:
+    get:
+      tags:
+        - record
+      summary: get a record by key
+      description: get a single record by key
+      operationId: getRecord
+      parameters:
+        - name: key
+          in: query
+          description: unique key for a record
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Record"
+        "404":
+          description: key not found
+  /flush:
+    get:
+      tags:
+        - flush
+      summary: flush all keys 
+      description: an endpoint to flush all keys
+      operationId: flushKeys
+      responses:
+        "200":
+          description: service is running
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+  /delete:
+    delete:
+      tags:
+        - record
+      summary: delete a record by key
+      description: delete a single record by key
+      operationId: deleteRecord
+      parameters:
+        - name: key
+          in: query
+          description: unique key for a record
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+        "404":
+          description: key not found
+servers:
+  - url: http://127.0.0.1
+components:
+  requestBodies:
+    Record:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Record"
+      description: a record body consisting of key + value
+      required: true
+  schemas:
+    Record:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          example: hello
+        value:
+          type: string
+          example: world
+    CreateRecordResponse:
+      type: object
+      required:
+        - key
+        - value
+        - status
+      properties:
+        key:
+          type: string
+          example: hello
+        value:
+          type: string
+          example: world
+        status:
+          type: string
+          example: created
+    Status:
+      type: object
+      properties:
+        status:
+          type: string
